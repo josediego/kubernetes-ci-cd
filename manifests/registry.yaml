@@ -51,8 +51,8 @@ metadata:
     app: registry
 spec:
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 80
+      targetPort: 80
       name: registry
   selector:
     app: registry
@@ -60,7 +60,7 @@ spec:
   type: NodePort
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: registry
@@ -69,6 +69,10 @@ metadata:
 spec:
   strategy:
     type: Recreate
+  selector:
+    matchLabels:
+       app: registry
+       tier: registry
   template:
     metadata:
       labels:
@@ -78,6 +82,9 @@ spec:
       containers:
       - image: registry:2
         name: registry
+        env: 
+        - name: REGISTRY_STORAGE_DELETE_ENABLED
+          value: "true"
         volumeMounts:
         - name: docker
           mountPath: /var/run/docker.sock
@@ -87,14 +94,14 @@ spec:
         - containerPort: 5000
           name: registry
       - name: registryui
-        image: hyper/docker-registry-web:latest
+        image: jc21/registry-ui
         ports:
-        - containerPort: 8080
+        - containerPort: 80
         env:
-        - name: REGISTRY_URL
-          value: http://localhost:5000/v2
-        - name: REGISTRY_NAME
-          value: cluster-registry
+        - name: REGISTRY_HOST
+          value: localhost:5000
+        - name: REGISTRY_DOMAIN
+          value: localhost:5000
       volumes:
       - name: docker
         hostPath:
