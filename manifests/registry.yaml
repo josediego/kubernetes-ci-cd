@@ -102,6 +102,8 @@ spec:
           value: localhost:5000
         - name: REGISTRY_DOMAIN
           value: localhost:5000
+        - name: REGISTRY_STORAGE_DELETE_ENABLED
+          value: 'true'
       volumes:
       - name: docker
         hostPath:
